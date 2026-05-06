@@ -1,22 +1,15 @@
 import { useState } from "react";
 
 const QUESTIONS = [
-  { id: "budget", title: "予算", options: ["low","mid","high","ultra"] },
-  { id: "usage", title: "用途", options: ["game","camera","sns","work"] },
+  { id: "budget", title: "💴 予算は？", options: ["〜3万","3〜6万","6〜10万","10万以上"] },
+  { id: "usage", title: "🎯 何に使う？", options: ["ゲーム","カメラ","SNS","仕事"] },
 ];
 
 const PHONES = [
-  { name: "Pixel 9", usage:["camera","sns"], price:"mid" },
-  { name: "ROG Phone 8", usage:["game"], price:"ultra" },
-  { name: "Galaxy S25", usage:["sns"], price:"high" },
+  { name: "Pixel 9", usage:["カメラ","SNS"], price:"3〜6万" },
+  { name: "ROG Phone 8", usage:["ゲーム"], price:"10万以上" },
+  { name: "Galaxy S25", usage:["SNS"], price:"6〜10万" },
 ];
-
-function scorePhone(phone, answers){
-  let score = 0;
-  if(phone.price === answers.budget) score += 50;
-  if(phone.usage.includes(answers.usage)) score += 50;
-  return score;
-}
 
 export default function App(){
   const [step,setStep] = useState(0);
@@ -30,8 +23,12 @@ export default function App(){
     setAnswers(newAns);
 
     if(step+1 >= QUESTIONS.length){
-      const ranked = PHONES.map(p=>({...p,score:scorePhone(p,newAns)}))
-        .sort((a,b)=>b.score-a.score);
+      const ranked = PHONES.map(p=>{
+        let score=0;
+        if(p.price===newAns.budget) score+=50;
+        if(p.usage.includes(newAns.usage)) score+=50;
+        return {...p,score};
+      }).sort((a,b)=>b.score-a.score);
       setResult(ranked);
     }else{
       setStep(step+1);
@@ -40,23 +37,6 @@ export default function App(){
 
   if(result){
     return (
-      <div style={{padding:20}}>
-        <h1>結果</h1>
+      <div style={{padding:"20px",color:"#fff"}}>
+        <h1>✨ 診断結果</h1>
         {result.map((p,i)=>(
-          <div key={i}>#{i+1} {p.name} ({p.score}pt)</div>
-        ))}
-      </div>
-    );
-  }
-
-  return (
-    <div style={{padding:20}}>
-      <h1>{current.title}</h1>
-      {current.options.map(o=>(
-        <button key={o} onClick={()=>select(o)} style={{display:"block",margin:"10px"}}>
-          {o}
-        </button>
-      ))}
-    </div>
-  );
-}
